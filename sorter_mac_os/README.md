@@ -4,7 +4,7 @@
 
 Program for sorting files by type
 
-Interface: Ukrainian
+Interface: EN/ Ukrainian
 
 At the root there is a compiled exe file
 
