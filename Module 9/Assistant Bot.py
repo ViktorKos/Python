@@ -1,192 +1,119 @@
-# decorator for input validation
-def input_error(func):
-    def inner(userData: tuple, USER_DATA: dict):
-        response = ""
-        if func.__name__ == "add_phone_handler" \
-                or func.__name__ == "change_phone_handler":
-            if userData[0] == "" or userData[1] == "":
-                response = "Provide user name and phone number.\n"
-        elif func.__name__ == "show_phone_handler":
-            if userData[0] == "":  # name is empty
-                response = "Provide user name.\n"
-        if response == "":
-            try:
-                response = func(userData, USER_DATA)  # call decorated function
-            except KeyError:
-                response = "Error: cannot find this user."
-            except ValueError:
-                response = "Error: cannot handle phone number."
-            except IndexError:
-                response = "Error: dictionary index error."
-            except:
-                response = "Error: unclassified error occured."
-        return response
+"""
+Бот повинен перебувати в безкінечному циклі, чекаючи команди користувача.
+Бот завершує свою роботу, якщо зустрічає слова: .
+Бот не чутливий до регістру введених команд.
+Бот приймає команди:
+"hello", відповідає у консоль "How can I help you?"
+"add ...". За цією командою бот зберігає у пам'яті (у словнику наприклад) новий контакт. 
+   Замість ... користувач вводить ім'я та номер телефону, обов'язково через пробіл.
+"change ..." За цією командою бот зберігає в пам'яті новий номер телефону існуючого контакту. 
+   Замість ... користувач вводить ім'я та номер телефону, обов'язково через пробіл.
+"phone ...." За цією командою бот виводить у консоль номер телефону для зазначеного контакту. 
+   Замість ... користувач вводить ім'я контакту, чий номер треба показати.
+"show all". За цією командою бот виводить всі збереженні контакти з номерами телефонів у консоль.
+"good bye", "close", "exit" по будь-якій з цих команд бот завершує свою роботу після того, 
+   як виведе у консоль "Good bye!".
+Всі помилки введення користувача повинні оброблятися за допомогою декоратора input_error. 
+   Цей декоратор відповідає за повернення користувачеві повідомлень виду "Enter user name", 
+   "Give me name and phone please" і т.п. 
+   Декоратор input_error повинен обробляти винятки, що виникають у функціях-handler (KeyError, ValueError, IndexError)
+   та повертати відповідну відповідь користувачеві.
+Логіка команд реалізована в окремих функціях і ці функції приймають на вхід один або декілька рядків 
+   та повертають рядок.
+Вся логіка взаємодії з користувачем реалізована у функції main, всі print та input відбуваються тільки там.
+"""
+
+# У словнику будемо зберігати ім'я користувача як ключ і номер телефону як значення.
+ADDRESSBOOK = {}
+
+# Декоратор відповідає за повернення користувачеві повідомлень
+def input_error(wrap):
+    def inner(*args):
+        try:
+            return wrap(*args)
+        except IndexError:
+            return "Give me name and phone, please"
+        except KeyError:
+            return "Contact not found"
+        except ValueError:
+            return "Invalid input. Please provide name and phone number separated by space."
     return inner
 
-
-def hello_handler(isWorking: bool):
-    if isWorking:
-        responseMessage = "Already working. Please enter an action command.\n"
-    else:
-        responseMessage = "How can I help you?\n"
-    return responseMessage
-
-
-def exit_handler():
-    responseMessage = "Good bye!"
-    return responseMessage
-
+# Функції обробники команд — набір функцій, які ще називають handler, 
+# вони відповідають за безпосереднє виконання команд.
+@input_error
+def add_handler(data):  # Додавання нового контакту
+    name = data[0].title()
+    phone = data[1]
+    ADDRESSBOOK[name] = phone
+    return f"Contact {name} with phone {phone} was saved"
 
 @input_error
-def add_phone_handler(userData: tuple, USER_DATA: dict):
-    if userData[0] in USER_DATA:
-        responseMessage = f"Record for {userData[0]} already exists."
-    else:
-        USER_DATA[userData[0]] = userData[1]
-        responseMessage = "Record was added.\n"
-    return responseMessage
-
-
-@input_error
-def change_phone_handler(userData: tuple, USER_DATA: dict):
-    if userData[0] in USER_DATA.keys():
-        USER_DATA[userData[0]] = userData[1]
-    else:
+def change_handler(data):  # Зміна номеру тедефону у існуючого конкакту
+    name = data[0].title()
+    phone = data[1]
+    if name not in ADDRESSBOOK:
         raise KeyError
-    responseMessage = "Record was changed.\n"
-    return responseMessage
-
-
-@input_error
-def show_phone_handler(userData: tuple, USER_DATA: dict):
-    userPhoneNumber = USER_DATA[userData[0]]
-    responseMessage = f"Found {userData[0]}: {userPhoneNumber}.\n"
-    return responseMessage
-
+    ADDRESSBOOK[name] = phone
+    return f"Phone number for contact {name} was changed to {phone}"
 
 @input_error
-def show_all_phones_handler(userData: tuple, USER_DATA):
-    if USER_DATA:
-        responseMessage = "Current dictionary contains:\n"
-        for item in enumerate(USER_DATA.items(), 1):
-            responseMessage += f"{item[0]}. {item[1][0]}: {item[1][1]}\n"
-    else:
-        responseMessage = "Current dictionary is empty.\n"
-    return responseMessage
+def phone_handler(data):  # Вивод у консоль номера телефону зазначеного контакту
+    name = data[0].title()
+    if name not in ADDRESSBOOK:
+        raise KeyError
+    phone = ADDRESSBOOK[name]
+    return f"The phone number for contact {name} is {phone}"
 
+@input_error
+def show_all_handler(*args):  # Вивод у консоль усіх контактів з номерами телефонів
+    if not ADDRESSBOOK:
+        return "The address book is empty"
+    contacts = "\n".join([f"{name}: {phone}" for name, phone in ADDRESSBOOK.items()])
+    return contacts
 
-# decorator for command validation
+# Бот Починає свою роботу
+def hello_handler(*args):
+    return "How can I help you?"
 
-def get_command_handler(command: str, COMMAND_HANDLER: dict):
-    command = command.lower()
-    commandHandler = None
-    if COMMAND_HANDLER:
-        commandHandler = COMMAND_HANDLER.get(command)
-    return commandHandler
+# Бот завершує свою роботу
+def exit_handler(*args):
+    return "Good bye!"
 
-# parse user input
+# Парсер команд
+def command_parser(raw_str: str):
+    elements = raw_str.split()
+    for func, cmd_list in COMMANDS.items():
+        for cmd in cmd_list:
+            if elements[0].lower() == cmd:
+                return func, elements[1:]
+    return None, None
 
+# Команди
+COMMANDS = {
+    add_handler: ["add"],
+    change_handler: ["change"],
+    phone_handler: ["phone"],
+    show_all_handler: ["show all"],
+    exit_handler: ["good bye", "close", "exit"],
+    hello_handler: ["hello"]
+}
 
-def parse_command_line(command_line: str, COMMAND: dict) -> str:
-    command = ""
-    userPhoneNumber = ""
-    userName = ""
-    userData = []
-    for registeredCommand in COMMAND:
-        if command_line.startswith(registeredCommand):
-            command = registeredCommand
-            data = command_line.removeprefix(command).strip()
-            if data:
-                data_components = data.split(" ")
-                for component in data_components:
-                    if component.isalpha():
-                        userName += component + " "
-                userName = userName.strip()
-                userPhoneNumber = data.removeprefix(userName).strip()
-            break
-    userData.append(userName)
-    userData.append(userPhoneNumber)
-    return (command, userData)
-
-
+# Цикл запит-відповідь. Ця частина програми відповідає за отримання від користувача даних 
+# та повернення користувачеві відповіді від функції-handlerа.
 def main():
-    USER_DATA = {
-        "": "",
-    }
-
-    isWorking = False
-
-    COMMAND = {
-        "hello": "Start work with this bot",
-        "add": "Add a phone number - add <user name> <phone number>",
-        "change": "Change a phone number - change <user name> <phone number>",
-        "phone": "Show user's phone number - phone <user name>",
-        "show all": "Show all contacts",
-        "good bye": "Finish work and exit",
-        "close": "Finish work and exit",
-        "exit": "Finish work and exit"
-    }
-
-    COMMAND_HANDLER = {
-        "hello": hello_handler,
-        "add": add_phone_handler,
-        "change": change_phone_handler,
-        "phone": show_phone_handler,
-        "show all": show_all_phones_handler,
-        "good bye": exit_handler,
-        "close": exit_handler,
-        "exit": exit_handler
-    }
-
-    commandHandler = None
-    print("Hello! This is assistant bot. Here is what I can do:")
-    for key, value in COMMAND.items():
-        print("{:<15}{}".format(key, value))
-
-    # awaiting for a command to start the bot or exit
-    while not isWorking:
-        inputCommand = str(
-            input("Please enter a command to start work or exit:\n"))
-        parsedCommand = parse_command_line(inputCommand, COMMAND)
-        commandHandler = get_command_handler(parsedCommand[0], COMMAND_HANDLER)
-        if not commandHandler is None:
-            if commandHandler.__name__ == "hello_handler":
-                response = commandHandler(isWorking)
-                print(response)
-                isWorking = True
-                USER_DATA.clear()
-            elif commandHandler.__name__ == "exit_handler":
-                response = commandHandler()
-                print(response)
+    while True:
+        user_input = input(">>> ")
+        if not user_input:
+            continue
+        func, data = command_parser(user_input)
+        if not func:
+            print("Unknown command. Type 'hello' for available commands.")
+        else:
+            result = func(data)
+            print(result)
+            if func == exit_handler:
                 break
-            else:
-                print(
-                    f"Cannot start work with action command {parsedCommand[0]}.\n")
-        else:
-            print("The command does not exist.\n")
-    # work loop
-    while isWorking:
-        inputCommand = str(input("Please enter an action command:\n"))
-        # parse input, get a command and userData
-        parsedCommand = parse_command_line(inputCommand, COMMAND)
-        commandHandler = get_command_handler(
-            parsedCommand[0], COMMAND_HANDLER)  # command
-        if not commandHandler is None:
-            if commandHandler.__name__ == "hello_handler":
-                response = commandHandler(isWorking)
-                print(response)
-            elif commandHandler.__name__ == "exit_handler":
-                response = commandHandler()
-                print(response)
-                isWorking = False
-            else:
-                response = commandHandler(
-                    parsedCommand[1], USER_DATA)  # userData
-                print(response)
-        else:
-            print(f"The command {parsedCommand[0]} does not exist.")
-    return
-
 
 if __name__ == "__main__":
     main()
