@@ -1,0 +1,20 @@
+      <nav style="margin-bottom: 20px; border-bottom: 2px solid; padding-left: 30px">
+        <ul>
+          <li><a href="{% url 'note_create' %}" role="button">Add note</a></li>
+          <li><a href="{% url 'tag_create' %}" role="button">Add Tag</a></li>
+        </ul>
+      </nav>
+
+      {% for note in notes%}
+      <ul>
+        <li>
+          {%if not note.done%}
+          <a href="{% url 'note_detail' note.id %}" role="button" class="outline"> {{note.name}} </a>
+          <a href="{% url 'note_set_done' note.id %}" role="button"> Mark Done </a>
+          <a href="{% url 'note_delete' note.id %}" role="button" class="contrast"> Delete note </a>
+          {% else %}
+          <a href="{% url 'detail' note.id %}" role="button" class="secondary"><s>{{note.name}}</s></a>
+          {% endif %}
+        </li>
+      </ul>
+      {% endfor %}
