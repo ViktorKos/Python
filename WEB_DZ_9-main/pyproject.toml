@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "web-dz-9"
+version = "0.1.0"
+description = ""
+authors = ["phenixua <112823718+phenixua@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+poetry = "^1.7.1"
+requests = "^2.31.0"
+lxml = "^4.9.3"
+beautifulsoup4 = "^4.12.2"
+bson = "^0.5.10"
+mongoengine = "^0.27.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
