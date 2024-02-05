@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "web-dz-10"
+version = "0.1.0"
+description = ""
+authors = ["phenixua <112823718+phenixua@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+poetry = "^1.7.1"
+pillow = "^10.1.0"
+django = "^4.2.7"
+pymongo = "^4.6.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

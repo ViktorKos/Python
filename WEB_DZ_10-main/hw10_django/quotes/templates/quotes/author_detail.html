@@ -1,0 +1,26 @@
+{% extends 'quotes/base.html' %}
+
+{% block content %}
+
+<div class="author-details ms-5 me-5">
+    <h3 class="author-title">{{ author.fullname }}</h3>
+    <p><strong>Born:</strong>
+        <span class="author-born-date">{{ author.born_date }}</span>
+        <span class="author-born-location">{{ author.born_location }}</span>
+    </p>
+    <p><strong>Description:</strong></p>
+    <div class="author-description me-5">
+        {{ author.description }}
+    </div>
+
+    {% if user.is_authenticated and user.id == author.user.id %}
+    <div class="d-flex justify-content-start">
+        <a href="{% url 'quotes:edit_author' author_id=author.id %}" class="btn btn-primary me-2">Edit</a>
+
+    </div>
+    {% endif %}
+
+
+</div>
+
+{% endblock %}

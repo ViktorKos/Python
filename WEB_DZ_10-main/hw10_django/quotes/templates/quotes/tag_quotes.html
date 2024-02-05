@@ -1,0 +1,65 @@
+{% extends 'quotes/base.html' %}
+{% load extract_authors %}
+
+{% block content %}
+
+    <div class="author-details ms-5" style="margin-left: 10%;">
+        <h2 class="author-title" style="margin-left: 5%;">
+            Viewing tag: <b style="color:dodgerblue;">{{ tag_name }}</b>
+        </h2>
+        <div class="col-md-8">
+        
+            {% for quote in quotes_with_tag %}
+
+            <div class="quote ms-5" itemscope="" itemtype="http://schema.org/CreativeWork">
+                <span class="text" itemprop="text">
+                    {{quote.quote}}
+                    <span style="float: right;">
+                        {% if user.is_authenticated and quote.user == user %}
+                            <form method="post" action="{% url 'quotes:delete_quote' quote.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button class="btn btn-danger delete-button" type="submit">Delete</button>
+                            </form>
+                        {% endif %}
+                    </span>
+                </span>
+
+                <span>
+                    by <small class="author" itemprop="author">{{ quote.author|author }}</small>
+                    <a href="{% url 'quotes:author_detail' author_id=quote.author.id %}" target="_self">(about)</a>
+                </span>
+
+                <div class="tags">
+                    Tags:
+                    <meta class="keywords" itemprop="keywords" content="{% for tag in quote.tags.all %}{{ tag.name }},{% endfor %}">
+                    {% for tag in quote.tags.all %}
+                        <a class="tag" href="{% url 'quotes:tag_quotes' tag_name=tag.name %}">{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+            <nav>
+                <div class="pagination" class="mb-3">
+                    <span class="step-links" style="margin-left: 5%;">
+                        {% if quotes_with_tag.has_previous %}
+                            <a class="btn btn-secondary" href="?page={{ quotes_with_tag.previous_page_number }}">Previous</a>
+                        {% endif %}
+
+                        <span class="current" style="margin: 0 10px;">
+                            <strong>Page {{ quotes_with_tag.number }} from {{ quotes_with_tag.paginator.num_pages }}.</strong>
+                        </span>
+
+                        {% if quotes_with_tag.has_next %}
+                            <a class="btn btn-secondary" href="?page={{ quotes_with_tag.next_page_number }}">Next</a>
+                        {% endif %}
+                    </span>
+                </div>
+            </nav>
+
+        </div>
+    </div>
+
+{% endblock %}
