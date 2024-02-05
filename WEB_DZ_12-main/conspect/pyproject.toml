@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "solution-rest-api"
+version = "0.1.0"
+description = ""
+authors = ["Yuriy Kuchma <krabatua@gmail.com>"]
+readme = "README.md"
+packages = [{include = "solution_rest_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+sqlalchemy = "^1.4.46"
+fastapi = "^0.89.1"
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
+psycopg2 = "^2.9.5"
+alembic = "^1.9.2"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.5"
+libgravatar = "^1.0.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
