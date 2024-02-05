@@ -1,0 +1,5 @@
+ACCOUNT_EXIST = "Account already exists!"
+WRONG_CREDENTIALS = "Wrong credentials"
+EMAIL_NOT_CONFIRMED = "Email not confirmed"
+ENTITY_NOT_FOUND = "ENTITY NOT FOUND."
+TEST_EMAIL = "deadpool@example.com"

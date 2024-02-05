@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "hw"
+version = "0.1.0"
+description = ""
+authors = ["phenixua <112823718+phenixua@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-jose = { extras = ["cryptography"], version = "^3.3.0" }
+fastapi = "^0.105.0"
+uvicorn = "^0.24.0.post1"
+fastapi-jwt-auth = "^0.5.0"
+sqlalchemy = "^2.0.23"
+passlib = { extras = ["bcrypt"], version = "^1.7.4" }
+python-multipart = "^0.0.6"
+alembic = "^1.13.0"
+psycopg2 = "^2.9.9"
+asyncpg = "^0.29.0"
+pydantic = { extras = ["email"], version = "^2.5.2" }
+libgravatar = "^1.0.4"
+fastapi-mail = "^1.4.1"
+python-dotenv = "^1.0.0"
+fastapi-limiter = "^0.1.5"
+cloudinary = "^1.37.0"
+pytest = "^7.4.4"
+pytest-mock = "^3.12.0"
+pytest-cov = "^4.1.0"
+
+
+[tool.poetry.group.dev.dependencies]
+sphinx = "^7.2.6"
+
+[tool.poetry.group.test.dependencies]
+aiosqlite = "^0.19.0"
+pytest-asyncio = "^0.23.2"
+httpx = "^0.26.0"
+pytest-cov = "^4.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+testpaths = [
+    "tests", ]
+pythonpath = "."
+filterwarnings = "ignore::DeprecationWarning"
